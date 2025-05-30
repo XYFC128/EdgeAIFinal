@@ -70,8 +70,7 @@ def prepare_tokenized_dataset(raw_dataset_split, tokenizer, max_seq_length, spli
 
 def finetune_model(
     model_name,
-    output_dir,
-    merged_model_name,
+    output_model_name,
     device="cuda",
     dataset_name="wikitext",
     dataset_config_name="wikitext-2-raw-v1",
@@ -179,6 +178,7 @@ def finetune_model(
 
     # 5. Training Arguments
     # ------------------------------------------------------------------------------------
+    output_dir = output_model_name + "-unmerged"
     training_arguments = SFTConfig(
         output_dir=output_dir,
         num_train_epochs=num_train_epochs,
@@ -255,10 +255,10 @@ def finetune_model(
         merged_model = merged_model.merge_and_unload()
         print("Merge complete.")
 
-        print(f"Saving merged model to {merged_model_name}...")
-        merged_model.save_pretrained(merged_model_name, safe_serialization=True)
-        tokenizer.save_pretrained(merged_model_name) # Tokenizer was already saved with adapter, but good practice
-        print(f"Merged model saved to {merged_model_name}")
+        print(f"Saving merged model to {output_model_name}...")
+        merged_model.save_pretrained(output_model_name, safe_serialization=True)
+        tokenizer.save_pretrained(output_model_name) # Tokenizer was already saved with adapter, but good practice
+        print(f"Merged model saved to {output_model_name}")
 
         # Free up VRAM
         del base_model_for_merging
@@ -270,7 +270,6 @@ def finetune_model(
 
 if __name__ == "__main__":
     finetune_model(
-        model_name="./llama3-3.2-3b-pruned/",
-        output_dir="./llama3-3.2-3b-pruned-lora-unmerged",
-        merged_model_name="llama3-3.2-3b-pruned-lora",
+        model_name="./llama3-3.2-3b-pruned",
+        output_model_name="llama3-3.2-3b-pruned-lora",
     )

@@ -5,6 +5,7 @@ from tqdm.auto import tqdm
 from datasets import load_dataset
 import random
 import numpy as np
+import sys
 
 #####################################################################
 # === SPEC NOTICE ===
@@ -86,8 +87,10 @@ def main():
     device = 'cuda:0'
     
     ### === TODO: Load your model (you may change this part) ===
-    # model_name = "./llama-pruned-lora"
-    model_name = "./llama3-1b-distilled-wikitext2-merged"
+    model_name = "./llama3.2-1b-distilled"
+    if len(sys.argv) > 1:
+        model_name = sys.argv[1]
+
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
         torch_dtype=torch.float16,
