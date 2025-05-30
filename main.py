@@ -1,5 +1,5 @@
 from finetune import finetune_model
-from distill import distill_model
+from distillation import distill_model
 from datasets import load_dataset
 from ppl import model_ppl
 
