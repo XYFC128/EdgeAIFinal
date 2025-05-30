@@ -87,7 +87,7 @@ def main():
     device = 'cuda:0'
     
     ### === TODO: Load your model (you may change this part) ===
-    model_name = "./llama3.2-1b-distilled"
+    model_name = "btliu/llama3.2-1b-distilled"
     if len(sys.argv) > 1:
         model_name = sys.argv[1]
 
