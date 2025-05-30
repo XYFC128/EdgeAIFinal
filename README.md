@@ -29,5 +29,5 @@ Optionally set `CUDA_VISIBLE_DEVICES=<device id>` to limit the GPU usage.
 This will load the model `btliu/llama3.2-1b-distilled` from Hugging Face Hub by default. If you want to test on the model trained in the [Prepare Model](#prepare-model) section, use the following command:
 
 ```sh
-python3 result.py `./llama3.2-1b-distilled`
+python3 result.py ./llama3.2-1b-distilled
 ```
