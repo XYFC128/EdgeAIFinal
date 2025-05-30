@@ -71,7 +71,7 @@ def prepare_tokenized_dataset(raw_dataset_split, tokenizer, max_seq_length, spli
 def finetune_model(
     model_name,
     output_model_name,
-    device="cuda",
+    device_map="auto",
     dataset_name="wikitext",
     dataset_config_name="wikitext-2-raw-v1",
     lora_r=16,
@@ -110,7 +110,7 @@ def finetune_model(
             "down_proj",
         ]
     
-    print(f"Using device: {device}")
+    print(f"device_map for finetune: {device_map}")
 
     # 2. Load Tokenizer and Model
     # ------------------------------------------------------------------------------------
@@ -132,7 +132,7 @@ def finetune_model(
         model_name,
         quantization_config=bnb_config,
         torch_dtype=compute_dtype_torch if use_4bit else torch.float32,
-        device_map=device,
+        device_map=device_map,
     )
     model.config.use_cache = False # Required for gradient checkpointing
     model.config.pretraining_tp = 1 # Important for Llama models
@@ -231,7 +231,8 @@ def finetune_model(
         del sft_eval_dataset
     if train_dataset_tokenized:
         del train_dataset_tokenized
-    torch.cuda.empty_cache()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
     print("Training complete.")
 
     # 9. Merge LoRA adapter with base model and save
@@ -245,7 +246,7 @@ def finetune_model(
             low_cpu_mem_usage=True,
             return_dict=True,
             torch_dtype=torch.float16, # Use float16 for merging
-            device_map=device,
+            device_map=device_map,
         )
 
         print(f"Loading PEFT adapter from {output_dir}...")
@@ -263,7 +264,8 @@ def finetune_model(
         # Free up VRAM
         del base_model_for_merging
         del merged_model
-        torch.cuda.empty_cache()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
 
     except Exception as e:
         print(f"Could not merge and save model: {e}")

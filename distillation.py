@@ -87,7 +87,7 @@ def distill_model(
     teacher_model_name="./llama-wikitext",
     student_model_name="meta-llama/Llama-3.2-1B-Instruct",
     distillation_output_model_name="./llama3-1b-distilled-wikitext2",
-    device="cuda",
+    device_map="auto",
     dataset_name="wikitext",
     dataset_config_name="wikitext-2-raw-v1",
     temperature=2.0,
@@ -146,11 +146,7 @@ def distill_model(
         bnb_4bit_quant_type_student: Quantization type for student
         resume_from_checkpoint: Set to true to resume training from a checkpoint or specify a checkpoint name
     """
-    print(f"Using device: {device} for distillation")
-    if device == "cpu":
-        print("WARNING: Distillation on CPU will be extremely slow. GPU is highly recommended.")
-        load_teacher_in_4bit = False
-        load_student_in_4bit = False
+    print(f"device_map for distillation: {device_map}")
 
     # Load Tokenizer
     print("Loading tokenizer...")
@@ -175,7 +171,7 @@ def distill_model(
         teacher_model_name,
         quantization_config=teacher_bnb_config,
         torch_dtype=getattr(torch, bnb_4bit_compute_dtype_teacher) if load_teacher_in_4bit else torch.float16,
-        device_map="auto",
+        device_map=device_map,
     )
     teacher_model.eval()
     for param in teacher_model.parameters():
@@ -198,7 +194,7 @@ def distill_model(
         student_model_name,
         quantization_config=student_bnb_config,
         torch_dtype=getattr(torch, bnb_4bit_compute_dtype_student) if load_student_in_4bit else torch.float16,
-        device_map="auto",
+        device_map=device_map,
     )
     student_model.train()
 
@@ -284,13 +280,14 @@ def distill_model(
     del teacher_model
     del student_model
     del distiller
-    torch.cuda.empty_cache()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
 
     # Merge LoRA if used
     if use_lora_on_student:
         print("Merging LoRA weights for student model...")
         base_student_model = AutoModelForCausalLM.from_pretrained(
-            student_model_name, torch_dtype=torch.float16, device_map="auto"
+            student_model_name, torch_dtype=torch.float16, device_map=device_map
         )
         merged_student_model = PeftModel.from_pretrained(base_student_model, distillation_output_dir)
         merged_student_model = merged_student_model.merge_and_unload()
@@ -301,7 +298,8 @@ def distill_model(
         # Clear VRAM
         del merged_student_model
         del base_student_model
-        torch.cuda.empty_cache()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
 
 if __name__ == "__main__":
     distill_model(
