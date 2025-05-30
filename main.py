@@ -12,7 +12,7 @@ if __name__ == "__main__":
         output_model_name="./llama3.2-3b-wikitext2",
         num_train_epochs=2,
         learning_rate=1e-4,
-        device="cuda",
+        device="cuda:0",
         # resume_from_checkpoint=True,
     )
 
