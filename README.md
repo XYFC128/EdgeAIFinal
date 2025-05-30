@@ -8,16 +8,6 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Prepare model
-
-This requires downloading Meta's llama model. Make sure you have access to it and set the `HF_TOKEN` environment variable to your hugging face token.
-
-```sh
-python3 main.py
-```
-
-Optionally set `CUDA_VISIBLE_DEVICES=<device id>` to limit the GPU usage.
-
 ## Get Result
 
 ```sh
@@ -31,3 +21,13 @@ This will load the model `btliu/llama3.2-1b-distilled` from Hugging Face Hub by 
 ```sh
 python3 result.py ./llama3.2-1b-distilled
 ```
+
+## Prepare Model
+
+Run the script to modify the `meta-llama/Llama-3.2-3B-Instruct` model for fast inference. This requires downloading Meta's llama model. Make sure you have access to it and set the `HF_TOKEN` environment variable to your hugging face token.
+
+```sh
+python3 main.py
+```
+
+Optionally set `CUDA_VISIBLE_DEVICES=<device id>` to limit the GPU usage.
