@@ -98,7 +98,7 @@ def main():
         trust_remote_code=True,
     )
     model.eval()
-    model = torch.compile(model, mode="reduce-overhead", dynamic=True)
+    model = torch.compile(model, mode="max-autotune", dynamic=True)
     #####################################
     
     model.eval()
